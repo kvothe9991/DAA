@@ -1,0 +1,261 @@
+%!TEX program = pdflatex
+\documentclass{article}
+
+% Opening
+\title{
+	   Greedy: Shop\\
+	   \texttt{{\large (https://codeforces.com/problemset/problem/521/D)}}}
+\author{Carlos Luis Aguila Fajardo}
+\date{}
+
+% Packages
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+% \usepackage{relsize}
+\usepackage[utf8]{inputenc}
+
+% Teoremas, demostraciones, proposiciones, lemas y definiciones
+\newtheoremstyle{default}
+	{\topsep}
+	{\topsep}
+	{}
+	{0pt}
+	{\bfseries}
+	{:}
+	{4pt plus 1pt minus 1pt}
+	{}
+\theoremstyle{default}
+\newtheorem{theorem}{Teorema}
+\newtheorem*{theorem*}{Teorema}
+\newtheorem*{lemma}{Lema}
+\newtheorem*{note}{Nota}
+\newtheorem*{prop}{Proposición}
+\newtheorem*{dem}{Demostración}
+\newtheorem*{definition}{Definición}
+\begin{document}
+\maketitle
+
+\section{Problema análogo}
+	Se desea maximizar $\prod\limits_{i=0}^k{a_i}$, el producto de los elementos del arreglo $a = \{a_1 \dots a_l\}$ utilizando $m$ de las $n$ posibles transformaciones $b = \{b_1 \dots b_n\}$, de la forma $b_i = \left( t_i, j_i, v_i \right),\; t_i \in \{=, +, *\}$. Estas transformaciones pueden ser de tres tipos:
+%
+	\begin{itemize}
+		\item Asignación ($=$): $a_{j_i}^* = v_i$
+		\item Adición ($+$): $a_{j_i}^* = a_{j_i} + v_i$
+		\item Multiplicación ($*$): $a_{j_i}^* = a_{j_i} \cdot v_i$
+	\end{itemize}
+%
+	de donde $a_i^*$ denota el nuevo valor que tomará el arreglo $a$ en la posición $i$.
+%
+%
+\newpage
+%
+%
+\section{Algoritmo greedy}
+\subsection{Reducción a un solo tipo de transformación}
+	Considerando que el objetivo del problema es optimizar una productoria de elementos, sería conveniente que las transformaciones realizadas sobre estos fueran también de forma multiplicativa. Por tanto, por simplicidad para las demostraciones posteriores, reduciremos todas las transformaciones disponibles a transformaciones multiplicativas.
+%
+	\subsubsection{Adición}
+		Consideremos una transformación aditiva en la forma $b_i = \left( +, j_i, v_i \right)$, entonces son equivalentes las transformaciones:
+%
+		\begin{equation}
+			a_{j_i}^* = a_{j_i} + v_i = a_{j_i} * \dfrac{a_{j_i} + v_i}{a_{j_i}} = a_{j_i} * v_i^\prime
+		\end{equation}
+%
+		por tanto es equivalente $b_i$ a $b_i^{\prime} = (*, j_i, v_i^\prime)$. Nótese que lo anterior solo se cumple cuando $a_{j_i} \neq 0$, lo cual ocurre siempre pues $1 \leq a_{j_i} \leq 10^6$ es una condición del problema original.
+%
+%
+	\subsubsection{Adiciones en sucesión}
+		\begin{definition}
+			Se denota $v(b) = v_0$ al valor de la transformación $b = (t,j,v_0)$. Similarmente, se define la operación $v(\{b_1 \dots b_k\}) = \{v(b_1) \dots v(b_k)\}$.
+		\end{definition}
+
+		\begin{definition}
+			Se denota $f_j(t)$ al arreglo de los valores de las transformaciones de tipo $t$ correspondientes al elemento $a_j$, ordenados de forma no creciente. Formalmente:
+			\begin{equation*}
+				f_j(t) = \left\{
+					bs_i = (t, j, d_i) \in b
+					{\;\Big\vert\;}
+					d_i \leq d_k \ \forall\,k:\; 1 \leq k < i
+				\right\}
+			\end{equation*}
+		\end{definition}
+
+		\paragraph{}Sea $f_i(+) = \{bs_1 \dots bs_p\}$, y $v(f_i(+)) = \{d_1 \dots d_p\}$ el arreglo de valores de las transformaciones aditivas correspondientes a $a_i$, entonces el resultado de aplicar todas las transformaciones de un prefijo de tamaño $k$ de $f_i(+)$ se puede representar como:
+%
+		\begin{equation}
+			a_i^{*} = a_i + d_1 + d_2 + \dots + d_k
+					= a_i + \sum\limits_{j=1}^{k}{d_j}
+					= a_i \cdot \frac{ a_i + \sum\limits_{j=1}^{k}{d_j} }
+									 {a_i + \sum\limits_{j=1}^{k-1}{d_j}}
+		\end{equation}
+%
+		de forma que a partir de cada transformación aditiva $bs_i$ es posible diseñar una multiplicativa que le corresponda:
+%
+		\begin{equation}\label{additive_equivalency}
+			b_i^\prime = \left( * , i , r_k \right),\quad
+			r_k = \frac{ a_i + \sum\limits_{j=1}^{k}{d_j} }
+					   {a_i + \sum\limits_{j=1}^{k-1}{d_j}}
+		\end{equation}
+%
+%
+	\subsubsection{Asignación}
+		Similarmente al caso anterior, sea $b_i = (=, j_i, v_i)$ una transformación de asignación, se puede obtener una transformación multiplicativa de la forma siguiente:
+%
+		\begin{equation*}
+			a_{j_i}^* = v_i = a_{j_i} \cdot \dfrac{v_i}{a_{j_i}}
+		\end{equation*}
+		\begin{equation}\label{assignment_equivalency}
+			b_i^\prime	= (*, \ j_i, \ \dfrac{v_i}{a_{j_i}})
+		\end{equation}
+%
+		Nótese que no es necesario generalizar los casos de asignación, ya que solo tiene sentido realizar, a lo sumo, una asignación por elemento $a_i$, puesto que cualquier transformación previa a una asignación se pierde luego de realizar esta.
+%		
+	\subsection{Precondiciones}
+		Considérese el arreglo de entrada $\{b_1 \dots b_n\}$ de las transformaciones posibles. Fue demostrado en secciones previas que es equivalente un arreglo $\{b_1^\prime \dots b_n^\prime\}$ donde $\forall i: b_i^\prime$ es multiplicativa. No ha sido profundizada, sin embargo, la condición necesaria para que se cumpla esta equivalencia.
+		\subsubsection{Adición:}
+		\label{additive_equivalency_proof}
+		Consideremos la expresión (\ref{additive_equivalency}) de las transformaciones aditivas; como fue mencionado anteriormente, esta expresión es válida para el caso en que se seleccione y aplique un prefijo de tamaño $k$ de las transformaciones disponibles de $f_i(+)$ que, al estar ordenadas de manera no creciente por valor, son las $k$ mayores transformaciones aditivas que se pueden aplicar a $a_i$.
+
+		De ser aplicada, en un paso intermedio, alguna transformación no aditiva sobre $a_i$ esta expresión pasa a ser falsa. Sin embargo, supongamos que se aplica una transformación multiplicativa sobre $a_i$ en dicho contexto, existen entonces $0 \leq p,q \leq k$ tal que:
+%
+		\begin{equation*}
+			a_i^{*} = \left(a_i + \sum\limits_{j=1}^{p}{d_j}\right)
+					\cdot v_q + 
+					\left(a_i + \sum\limits_{j=p+1}^{k}{d_j}\right) 
+		\end{equation*}
+%
+		Sea $a_i^{*\prime}$ la aplicación de las mismas transformaciones, pero realizadas todas las aditivas primero, es fácil observar que:
+%
+		\begin{align}
+			\nonumber
+			\left(a_i + \sum\limits_{j=p+1}^{k}{d_j}\right)
+				&\leq
+				\left(a_i + \sum\limits_{j=p+1}^{k}{d_j}\right) \cdot v_q
+			\\ \nonumber
+			\left(a_i + \sum\limits_{j=1}^{p}{d_j}\right)
+					\cdot v_q + 
+					\left(a_i + \sum\limits_{j=p+1}^{k}{d_j}\right)
+				&\leq
+				\left(a_i + \sum\limits_{j=1}^{k}{d_j}\right) \cdot v_q
+			\\
+			a_i^* &\leq a_i^{*\prime} 
+		\end{align}
+%
+		entonces siempre es correcto aplicar todas las transformaciones aditivas seleccionadas antes que las multiplicativas, por lo cual siempre es correcta la proposición de equivalencia (\ref{additive_equivalency}).
+%
+		\subsubsection{Asignación:}
+		\label{assignment_equivalency_proof}
+		Supongamos que existen asignaciones asociadas a $a_j$, sea $b_i = (=, j, v_i)$ la mayor de ellas. Solo tiene sentido aplicar la transformación $b_i$ si se cumple que $b_i > a_j$ y aplicarla antes que cualquier otra transformación. Intuitivamente si no se cumpliera lo primero el resultado sería un valor menor que el previo a aplicar la transformación; en el segundo caso, de no aplicarse la asignación primero se tendrían un conjunto de transformaciones iniciales cuya selección no aportaría nada. Por tanto es válido aplicar la equivalencia (\ref{assignment_equivalency}) siempre y cuando se asigne solamente, si acaso, en la primera transformación.
+%
+\subsection{Planteamiento del algoritmo}
+\paragraph{}
+	Sea $b^\prime = \{b_1^\prime \dots b_n^\prime\}$ el resultado de ordenar por valor no creciente las transformaciones $(*)$ correspondientes a las transformaciones de entrada $b$, independientemente de los $a_i$. El algoritmo greedy pretende maximizar la función objetivo mediante dos criterios:
+%
+	\begin{enumerate}
+		\item La selección de las transformaciones que mayor valor multiplicativo aporten. Es decir, el algoritmo selecciona siempre un prefijo tamaño $m$ de $b^{\prime}$.
+		\item Al aplicar las transformaciones $\{b_1^{\prime} \dots b_m^{\prime}\}$, se realiza en orden respecto a sus tipos originales: primero, de existir, la transformación de asignación; luego todas las originalmente aditivas; por último las multiplicativas.
+	\end{enumerate}
+
+	Por lo demostrado en la sección anterior, con el segundo criterio se garantiza que es válida la equivalencia del aporte de valor que se tiene en cuenta en el primero.
+
+\paragraph{}
+	Sea $G = \{g_1 \dots g_m\}, G^\prime = \{g_1^\prime \dots g_m^\prime\}$, respectivamente, el orden de aplicación del algoritmo greedy y sus transformaciones llevadas a forma multiplicativa en orden no creciente.
+
+	Sea $O = \{o_1, o_2 \dots o_m\}$ un óptimo del problema, donde los $o_j$ se encuentran ordenados por orden de aplicación. Supongamos que $O$ no mantiene el orden de aplicación del algoritmo greedy, entonces por lo demostrado en (\ref{additive_equivalency_proof}) y (\ref{assignment_equivalency_proof}) es siempre igual o mejor un orden de aplicación como el de $G$, por lo tanto debe existir al menos un óptimo de esta forma, porque se puede obtener mediante transformaciones equivalentes.
+
+	Sea entonces $O$ el óptimo con este orden cuyas transformaciones llevadas a forma multiplicativa $O^\prime$, ordenadas por valor no creciente, tienen el mayor prefijo común con $G^\prime$. Supongamos que existe $j$ la primera posición donde se cumple que $g_j^\prime \neq o_j^\prime$, de no existir tal $j$ entonces $G$ sería óptimo.
+
+\paragraph{}
+	Conocemos que $G^\prime$ es un prefijo de $b^{\prime}$, y que por tanto siempre toma la transformación de mayor valor disponible. Entonces por construcción se cumple en la posición $j$ que:
+%
+	\begin{equation*}
+		v(o_j^\prime) \leq v(g_j^\prime)
+	\end{equation*}
+%
+	de lo cual existen dos posibles casos:
+%
+	\begin{enumerate}
+		\item Existe una posición $k > j$ tal que $g_j^\prime = o_k^\prime$, por lo tanto definimos $O^{\prime\prime}$ el resultado de intercambiar $o_j^\prime$ y $o_k^\prime$.
+		
+		\item El elemento $g_j^\prime$ no se encuentra en ninguna posición de $O^\prime$, por lo tanto como $v(o_j^\prime) \leq v(g_j^\prime)$ definimos $O^{\prime\prime}$ el resultado de cambiar la transformación $o_j^\prime$ por $g_j^\prime$.
+	\end{enumerate}
+%
+	Nótese que no puede ocurrir que $g_j^\prime$ se encuentre en una posición de $O^\prime$ menor que $j$, pues de ocurrir entonces $j$ no sería la primera posición en que $G^\prime$ y $O^\prime$ difieren.
+
+	Entonces, como consecuencia de cualquiera de los dos casos, se tiene un óptimo $O^{\prime\prime}$ cuya forma ordenada por valores tiene mayor prefijo común con $G^\prime$ que $O^\prime$, lo cual es una contradicción pues por definición $O^\prime$ es el óptimo con mayor prefijo común con $G^\prime$. Entonces no existe $j$ tal que $g_j^\prime \neq o_j^\prime$, por lo que $G$ es óptimo.
+%
+%
+%
+\section{Implementación}
+La implementación del algoritmo greedy planteado se encuentra en el archivo \texttt{shop.py}.
+%
+\subsection{Complejidad temporal}
+	Sean $k$ la cantidad de elementos a optimizar, $n, m$ la cantidad de transformaciones disponibles y a seleccionar respectivamente, la implementación realiza las siguientes operaciones significativas:
+	%
+	\begin{enumerate}
+		\item Poblar una lista $f_j(t)$ de transformaciones agrupadas por cada tipo $t$ y por elemento $j$-ésimo de $a$ que modifican. Se realizan no más inserciones que la cantidad $n$ de transformaciones.
+		\begin{itemize}
+			\item Una inserción utilizando \texttt{append} en Python tiene un costo amortizado de $O(1)$; aunque la amortización no implica que no ocurra ocasionalmente una inserción mas lenta, en la mayoría de los casos se comporta de esta manera.
+			\item Por tanto en el peor de los casos la complejidad temporal amortizada de la poblar la lista de agrupamientos sería $O(n)$.
+		\end{itemize}
+%
+		\item Por cada $a_j$, hallar, de existir, la máxima transformación de asignación disponible, y añadirla a las transformaciones de suma.
+		\begin{itemize}
+			\item El total de los tamaños de todas las $f_j(=)$ no superan $n$.
+			\item En el peor de los casos, todas las transformaciones son de asignación, y aplicables sobre un $a_j$ específico, de forma que la lista tiene el mayor tamaño posible. De ser así, esta lista no puede superar el tamaño $n$.
+			\item El costo de hallar el máximo elemento de una lista de tamaño $n$ es $O(n)$. De esta forma el costo en el peor caso es $O(n + k)$.
+		\end{itemize}
+%
+		\item Similarmente a la operación anterior, por cada $a_j$ se ordena la lista $f_j(+)$ y se convierten a multiplicativas todas las transformaciones de esta.
+		\begin{itemize}
+			\item El total de los tamaños de todas las $f_j(+)$ no superan $n$.
+			\item Ordenar por tanto las listas tiene un costo total de $O(k + n\log n)$. Convertirlas a multiplicativa entonces es $O(k + n)$.
+		\end{itemize}
+%
+		\item Por cada $a_j$, añadir todas las transformaciones de forma $(*)$ a una lista general $b^\prime$. Naturalmente no hay mas de $n$ transformaciones, por lo que esta operación tiene un costo amortizado de $O(k + n)$, pues se utiliza \texttt{append}.
+%
+		\item Ordenar $b^\prime$ por un costo de $O(n\log n)$ y tomar un conjunto tamaño $m$ de los mayores $m$ elementos de $b^\prime$, en $O(m)$ utilizando la clase \texttt{set} de Python.
+		
+		\item Ordenar $b$ por $a_j$ asociado, luego por tipo, luego por valor.
+		\begin{itemize}
+			\item Todos los $b_i$ con mismo $a_j$ asociado pasan a ser ordenados por tipo, luego todos los $b_i$ con mismos $a_j$ asociado e iguales tipos pasan a ser ordenados por valor.
+			\item El costo de ordenar $b$ es $O(n\log n)$.
+		\end{itemize}
+%
+		\item Respetando el orden del $b$ recientemente ordenado, imprimir los valores seleccionados con complejidad total de $O(n)$.
+	\end{enumerate}
+%
+	La complejidad temporal total del algoritmo es entonces:
+	\begin{equation*}
+		O(k + m + n\log n) = O\big(\max\big\{ k, m, n \log n \big\}\big)
+	\end{equation*}
+%
+%
+%
+\section{Generación de casos}
+En el archivo \texttt{scripts/tester.py} se encuentra la implementación de un sistema de generación de casos pruebas para el algoritmo greedy planteado. Basta con ejecutar los comandos:
+\begin{verbatim}
+    cd scripts
+    python tester.py n
+\end{verbatim}
+donde $n$ es la cantidad de pruebas aleatorias a crear y comprobar. El script imprime el contexto de cada caso ejecutado (los valores de $a,b,n$) e imprime \texttt{"OK."} en caso de estar correcto o por lo contrario imprime \texttt{"ERROR."} con contexto adicional de los valores obtenidos de la multiplicatoria.
+%
+\subsection{Verificación utilizando fuerza bruta}
+	Para verificar la salida del algoritmo greedy es necesario tener una forma de obtener la respuesta correcta sin utilizarlo. Con este objetivo en el script existe la función \texttt{solve\_shop\_with\_brute\_force}, la cual se encarga de comprobar todos los subconjuntos posibles de $b$ de tamaño $1 \dots m$, almacenando el valor máximo obtenido.
+
+	Se asume solamente, de lo demostrado en secciones anteriores, que es correcta la ordenación de las transformaciones planteada, tal que siempre existe un óptimo que aplica las transformaciones en orden $(=, +, *)$; el algoritmo de fuerza bruta encuentra siempre dicho óptimo, o bien alguno de los que son de esa forma.
+
+	En cuestiones de complejidad, se itera una vez por cada subconjunto de $b$, y conocemos que la cantidad de subconjuntos de cualquier conjunto de tamaño $n$ es $O(2^n)$. Por cada iteración además se comprueba el valor que se puede obtener de seleccionar estas transformaciones en orden, lo cual tiene un costo de $O(n \log n)$; por cada una de las a lo sumo $m$ transformaciones, se aplica la misma sobre el $a_i$ correspondiente, lo cual tiene un costo de $O(m)$; por último en cada iteración se obtiene el resultado de la multiplicatoria $\prod_{i=1}^k a_i$, lo cual incurre un costo $O(k)$.
+
+	El costo total del algoritmo termina siendo entonces $O((n \log n + k) \cdot 2^n)$.
+%
+\subsection{Medio de verificación de las soluciones}
+	Para verificar que las soluciones de ambos algoritmos son equivalentes, y que en efecto el algoritmo greedy devuelve una respuesta correcta, se utilizan los resultados de la multiplicatoria final.
+
+	Considerando que no necesariamente existe un solo óptimo no se tiene en cuenta que el orden de las respuestas sea distinto, o bien incluso que traten las respuestas de ambos algoritmos del mismo subconjunto. Sin embargo, si existe $O$ el óptimo encontrado por el algoritmo de fuerza bruta, y $G$ la solución del greedy, entonces de cumplirse que la productoria de $a$ con las transformaciones de $O$ obtiene el mismo resultado que con las transformaciones de $G$, el greedy encontró un óptimo para el caso actual.
+	
+%
+%
+%
+\end{document}
