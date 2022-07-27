@@ -162,7 +162,7 @@
 \paragraph{}
 	Sea $G = \{g_1 \dots g_m\}, G^\prime = \{g_1^\prime \dots g_m^\prime\}$, respectivamente, el orden de aplicación del algoritmo greedy y sus transformaciones llevadas a forma multiplicativa en orden no creciente.
 
-	Sea $O = \{o_1, o_2 \dots o_m\}$ un óptimo del problema, donde los $o_j$ se encuentran ordenados por orden de aplicación. Supongamos que $O$ no mantiene el orden de aplicación del algoritmo greedy, entonces por lo demostrado en (\ref{additive_equivalency_proof}) y (\ref{assignment_equivalency_proof}) es siempre igual o mejor un orden de aplicación como el de $G$, por lo tanto debe existir al menos un óptimo de esta forma, porque se puede obtener mediante transformaciones equivalentes.
+	Sea $O = \{o_1, o_2 \dots o_m\}$ un óptimo del problema, donde los $o_j$ se encuentran ordenados por orden de aplicación. Supongamos que $O$ no mantiene el orden de aplicación del algoritmo greedy, entonces por lo demostrado en (\ref{additive_equivalency_proof}) y (\ref{assignment_equivalency_proof}) es siempre igual o mejor un orden de aplicación como el de $G$, por lo tanto debe existir al menos un óptimo de esta forma porque se puede obtener mediante transformaciones equivalentes.
 
 	Sea entonces $O$ el óptimo con este orden cuyas transformaciones llevadas a forma multiplicativa $O^\prime$, ordenadas por valor no creciente, tienen el mayor prefijo común con $G^\prime$. Supongamos que existe $j$ la primera posición donde se cumple que $g_j^\prime \neq o_j^\prime$, de no existir tal $j$ entonces $G$ sería óptimo.
 
@@ -178,12 +178,14 @@
 	\begin{enumerate}
 		\item Existe una posición $k > j$ tal que $g_j^\prime = o_k^\prime$, por lo tanto definimos $O^{\prime\prime}$ el resultado de intercambiar $o_j^\prime$ y $o_k^\prime$.
 		
-		\item El elemento $g_j^\prime$ no se encuentra en ninguna posición de $O^\prime$, por lo tanto como $v(o_j^\prime) \leq v(g_j^\prime)$ definimos $O^{\prime\prime}$ el resultado de cambiar la transformación $o_j^\prime$ por $g_j^\prime$.
+		\item El elemento $g_j^\prime$ no se encuentra en ninguna posición de $O^\prime$ porque el óptimo nunca lo escogió, por lo tanto como $v(o_j^\prime) \leq v(g_j^\prime)$ definimos $O^{\prime\prime}$ el resultado de insertar la transformación $g_j^\prime$ en lugar de $o_j^\prime$ .
 	\end{enumerate}
 %
 	Nótese que no puede ocurrir que $g_j^\prime$ se encuentre en una posición de $O^\prime$ menor que $j$, pues de ocurrir entonces $j$ no sería la primera posición en que $G^\prime$ y $O^\prime$ difieren.
 
 	Entonces, como consecuencia de cualquiera de los dos casos, se tiene un óptimo $O^{\prime\prime}$ cuya forma ordenada por valores tiene mayor prefijo común con $G^\prime$ que $O^\prime$, lo cual es una contradicción pues por definición $O^\prime$ es el óptimo con mayor prefijo común con $G^\prime$. Entonces no existe $j$ tal que $g_j^\prime \neq o_j^\prime$, por lo que $G$ es óptimo.
+
+	O bien podemos decir que, tras una cantidad de finita de transformaciones equivalentes sobre $O^\prime$, se obtiene $G^\prime$ por lo cual es óptimo.
 %
 %
 %
